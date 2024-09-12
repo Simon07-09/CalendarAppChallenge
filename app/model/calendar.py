@@ -36,6 +36,59 @@ class Event:
                 f"Description: {self.description}\n"
                 f"Time: {self.start_at} - {self.end_at}")
 
+class Day:
+    def __init__(self, date_: date):
+        self.date_ = date_
+        self.slots = {}
+        self._init_slots()
+
+    def _init_slots(self):
+        for hour in range(24):
+            for minute in range(0, 60, 15):
+                self.slots[time(hour, minute)] = None
+
+    def add_event(self, event_id: str, start_at: time, end_at: time):
+        current_time = start_at
+        while current_time < end_at:
+            if self.slots.get(current_time) is not None:
+                slot_not_available_error()
+            self.slots[current_time] = event_id
+            # Increment the current_time by 15 minutes
+            minutes = current_time.minute + 15
+            if minutes == 60:
+                current_time = time(current_time.hour + 1, 0)
+            else:
+                current_time = time(current_time.hour, minutes)
+
+    def delete_event(self, event_id: str):
+        deleted = False
+        for slot, saved_id in self.slots.items():
+            if saved_id == event_id:
+                self.slots[slot] = None
+                deleted = True
+        if not deleted:
+            event_not_found_error()
+
+    def update_event(self, event_id: str, start_at: time, end_at: time):
+        for slot in self.slots:
+            if self.slots[slot] == event_id:
+                self.slots[slot] = None
+
+        current_time = start_at
+        while current_time < end_at:
+            if self.slots.get(current_time):
+                slot_not_available_error()
+            self.slots[current_time] = event_id
+            minutes = current_time.minute + 15
+            if minutes == 60:
+                current_time = time(current_time.hour + 1, 0)
+            else:
+                current_time = time(current_time.hour, minutes)
+
+
+
+
+
 
 
 
